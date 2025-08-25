@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+
+    triggers {
+        githubPush() // triggers build on GitHub commit
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/anisha1801/zen-tasks'
+            }
+        }
+        stage('Run Script') {
+            steps {
+                sh 'bash ./hello.sh' // safer than ./hello.sh
+            }
+        }
+    }
+
+    post {
+        success {
+            mail to: 'anishareddy42@gmail.com',
+                 subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: "Build was successful.\nCheck details: ${env.BUILD_URL}"
+        }
+        failure {
+            mail to: 'anishareddy42@gmail.com',
+                 subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: "Build failed.\nCheck logs: ${env.BUILD_URL}"
+        }
+    }
+}
